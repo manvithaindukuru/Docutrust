@@ -9,7 +9,7 @@ from services.document_processor import DocumentProcessor
 from services.vector_store import VectorStore
 from services.llm_service import LLMService
 
-app = FastAPI(title="RAG Knowledge Assistant", version="1.0.0")
+app = FastAPI(title="Document Intelligence", version="1.0.0")
 
 frontend_origins = os.getenv("FRONTEND_URLS") or os.getenv("FRONTEND_URL") or "http://localhost:3000,http://localhost:5173"
 if isinstance(frontend_origins, str):

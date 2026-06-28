@@ -1,6 +1,5 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Brain, Zap } from 'lucide-react'
 
 const Header = ({ docCount }) => {
   return (
@@ -12,30 +11,9 @@ const Header = ({ docCount }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div style={styles.iconWrap}>
-            <Brain size={20} color="#00d4ff" />
-            <div style={styles.iconPulse} />
-          </div>
           <div>
-            <h1 style={styles.title}>KNOWLEDGE<span style={styles.titleAccent}>_AI</span></h1>
-            <p style={styles.subtitle}>RAG-Powered Document Intelligence</p>
-          </div>
-        </motion.div>
-
-        <motion.div
-          style={styles.stats}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <div style={styles.statBadge}>
-            <Zap size={12} color="#00e5a0" />
-            <span style={styles.statLabel}>Groq LLM</span>
-          </div>
-          <div style={styles.divider} />
-          <div style={styles.statBadge}>
-            <span style={styles.docCount}>{docCount}</span>
-            <span style={styles.statLabel}>docs indexed</span>
+            <h1 style={styles.title}>DOCUTRUST<span style={styles.titleAccent}>_AI</span></h1>
+            <p style={styles.subtitle}>AI-Powered Document Intelligence with Verified Citations</p>
           </div>
         </motion.div>
       </div>
@@ -93,7 +71,7 @@ const styles = {
     lineHeight: 1,
   },
   titleAccent: {
-    color: '#00d4ff',
+    color: '#3ab5b3',
   },
   subtitle: {
     fontFamily: "'DM Mono', monospace",

@@ -1,4 +1,4 @@
-# RAG Knowledge Assistant
+# DoCUTRUST
 
 A full-stack Retrieval-Augmented Generation (RAG) system for intelligent document querying. Upload company documents, index them with vector embeddings, and ask natural language questions — powered by **Groq LLaMA 3.3** and **FAISS**.
 

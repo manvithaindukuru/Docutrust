@@ -4,10 +4,10 @@ import { Send, Loader2, Trash2, MessageSquare, Sparkles } from 'lucide-react'
 import ChatMessage from './ChatMessage'
 
 const SUGGESTED_QUERIES = [
-  "What are the key findings in the uploaded documents?",
-  "Summarize the main topics covered",
-  "What policies or procedures are mentioned?",
-  "List any important dates or deadlines",
+  "Provide a concise summary of this document",
+  "What are the key facts and findings mentioned?",
+  "Extract the most important information with citations",
+  "Answer questions based only on the uploaded document"
 ]
 
 const ChatInterface = ({ messages, loading, onSend, onClear, hasDocuments }) => {
