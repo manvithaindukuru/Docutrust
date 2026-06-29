@@ -1,5 +1,5 @@
 services:
-  - type: web_service
+  - type: web
     name: rag-knowledge-backend
     env: python
     region: oregon
@@ -10,16 +10,11 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
 
-    runtime: python
-    pythonVersion: 3.11.9
-
     envVars:
       - key: GROQ_API_KEY
         value: ""
       - key: FRONTEND_URLS
         value: "https://your-frontend.onrender.com"
-
-    autoDeploy: true
 
   - type: static_site
     name: rag-knowledge-frontend
@@ -34,5 +29,3 @@ services:
     envVars:
       - key: VITE_API_URL
         value: "https://your-backend.onrender.com"
-
-    autoDeploy: true
