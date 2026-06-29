@@ -31,5 +31,12 @@ services:
     envVars:
       - key: VITE_API_URL
         value: "https://your-backend.onrender.com"
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+      - key: TORCH_CPU_ONLY
+        value: "1"
 
     autoDeploy: true
+    

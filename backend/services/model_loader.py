@@ -1,11 +1,13 @@
+from functools import lru_cache
 from sentence_transformers import SentenceTransformer
 
-_model = None
+MODEL_NAME = "all-MiniLM-L6-v2"
 
 
+@lru_cache(maxsize=1)
 def get_embedding_model():
-    global _model
-    if _model is None:
-        print("Loading embedding model (lazy load)...")
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
+    """
+    Lazy-load model ONLY when first needed.
+    Prevents Render startup OOM.
+    """
+    return SentenceTransformer(MODEL_NAME)
