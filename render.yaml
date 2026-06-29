@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: web_service
     name: rag-knowledge-backend
     env: python
     region: oregon
@@ -16,6 +16,8 @@ services:
       - key: FRONTEND_URLS
         value: "https://your-frontend.onrender.com"
 
+    autoDeploy: true
+
   - type: static_site
     name: rag-knowledge-frontend
     region: oregon
@@ -29,3 +31,5 @@ services:
     envVars:
       - key: VITE_API_URL
         value: "https://your-backend.onrender.com"
+
+    autoDeploy: true

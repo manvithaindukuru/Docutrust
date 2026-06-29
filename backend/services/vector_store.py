@@ -1,9 +1,10 @@
 import os
 import pickle
 import numpy as np
-from typing import List, Dict, Optional
-from sentence_transformers import SentenceTransformer
+from typing import List, Dict
+
 import faiss
+from app.services.model_loader import get_embedding_model
 
 
 class VectorStore:
@@ -11,13 +12,19 @@ class VectorStore:
         self.persist_dir = persist_dir
         self.index_path = os.path.join(persist_dir, "faiss.index")
         self.metadata_path = os.path.join(persist_dir, "metadata.pkl")
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+
+        self.model = None  # ❌ DO NOT LOAD HERE
         self.dimension = 384
         self.index = None
         self.metadata: List[Dict] = []
 
         os.makedirs(persist_dir, exist_ok=True)
         self._load_or_create_index()
+
+    def _get_model(self):
+        if self.model is None:
+            self.model = get_embedding_model()
+        return self.model
 
     def _load_or_create_index(self):
         if os.path.exists(self.index_path) and os.path.exists(self.metadata_path):
@@ -34,8 +41,13 @@ class VectorStore:
             pickle.dump(self.metadata, f)
 
     def _encode(self, texts: List[str]) -> np.ndarray:
-        embeddings = self.model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
-        return embeddings.astype(np.float32)
+        model = self._get_model()
+        embeddings = model.encode(
+            texts,
+            normalize_embeddings=True,
+            show_progress_bar=False
+        )
+        return np.array(embeddings).astype(np.float32)
 
     def add_documents(self, chunks: List[Dict], filename: str) -> List[int]:
         texts = [chunk["text"] for chunk in chunks]
@@ -62,59 +74,66 @@ class VectorStore:
 
         query_embedding = self._encode([query])
         actual_k = min(top_k, self.index.ntotal)
+
         scores, indices = self.index.search(query_embedding, actual_k)
 
         results = []
         for score, idx in zip(scores[0], indices[0]):
             if idx != -1 and 0 <= idx < len(self.metadata):
-                result = self.metadata[idx].copy()
-                result["score"] = float(score)
-                results.append(result)
+                item = self.metadata[idx].copy()
+                item["score"] = float(score)
+                results.append(item)
 
-        results.sort(key=lambda x: x["score"], reverse=True)
-        return results
+        return sorted(results, key=lambda x: x["score"], reverse=True)
 
     def get_document_count(self) -> int:
         return self.index.ntotal if self.index else 0
 
     def list_documents(self) -> List[Dict]:
-        seen_files = {}
+        seen = {}
+
         for meta in self.metadata:
             fname = meta.get("filename", "unknown")
-            if fname not in seen_files:
-                seen_files[fname] = {"filename": fname, "chunks": 0, "pages": set()}
-            seen_files[fname]["chunks"] += 1
-            if meta.get("page"):
-                seen_files[fname]["pages"].add(meta["page"])
 
-        result = []
-        for fname, info in seen_files.items():
-            result.append({
+            if fname not in seen:
+                seen[fname] = {"filename": fname, "chunks": 0, "pages": set()}
+
+            seen[fname]["chunks"] += 1
+            if meta.get("page"):
+                seen[fname]["pages"].add(meta["page"])
+
+        return [
+            {
                 "filename": fname,
-                "chunks": info["chunks"],
-                "pages": max(info["pages"]) if info["pages"] else None
-            })
-        return result
+                "chunks": data["chunks"],
+                "pages": max(data["pages"]) if data["pages"] else None
+            }
+            for fname, data in seen.items()
+        ]
 
     def delete_document(self, filename: str) -> bool:
-        indices_to_remove = [i for i, m in enumerate(self.metadata) if m.get("filename") == filename]
+        indices_to_remove = [
+            i for i, m in enumerate(self.metadata)
+            if m.get("filename") == filename
+        ]
+
         if not indices_to_remove:
             return False
 
-        new_metadata = [m for m in self.metadata if m.get("filename") != filename]
-        keep_indices = [i for i in range(len(self.metadata)) if i not in set(indices_to_remove)]
+        self.metadata = [
+            m for m in self.metadata
+            if m.get("filename") != filename
+        ]
 
-        if keep_indices:
-            all_texts = [m["text"] for m in self.metadata]
-            all_embeddings = self._encode(all_texts)
-            kept_embeddings = all_embeddings[keep_indices]
+        if self.metadata:
+            texts = [m["text"] for m in self.metadata]
+            embeddings = self._encode(texts)
 
             self.index = faiss.IndexFlatIP(self.dimension)
-            self.index.add(kept_embeddings)
+            self.index.add(embeddings)
         else:
             self.index = faiss.IndexFlatIP(self.dimension)
 
-        self.metadata = new_metadata
         for i, meta in enumerate(self.metadata):
             meta["doc_id"] = i
 
