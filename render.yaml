@@ -19,7 +19,7 @@ services:
         sync: false
 
       - key: FRONTEND_URLS
-        value: https://your-frontend.onrender.com
+        value: "*"
 
       - key: PYTHONUNBUFFERED
         value: "1"
@@ -33,7 +33,7 @@ services:
   # ==========================
   # Frontend
   # ==========================
-  - type: static
+  - type: web
     name: rag-knowledge-frontend
     env: static
     region: oregon
@@ -43,10 +43,10 @@ services:
     branch: main
 
     buildCommand: npm install && npm run build
-    publishPath: dist
+    staticPublishPath: dist
 
     envVars:
       - key: VITE_API_URL
-        value: https://your-backend.onrender.com
+        sync: false
 
     autoDeploy: true
