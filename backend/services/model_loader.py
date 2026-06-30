@@ -1,12 +1,9 @@
-from functools import lru_cache
 from sentence_transformers import SentenceTransformer
 
+_model = None
 
-@lru_cache(maxsize=1)
 def get_embedding_model():
-    """
-    Lazy loads embedding model only when first needed.
-    Cached globally for performance.
-    """
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    return model
+    global _model
+    if _model is None:
+        _model = SentenceTransformer("all-MiniLM-L6-v2")
+    return _model
