@@ -1,10 +1,14 @@
 services:
-  - type: web_service
+  # ==========================
+  # Backend
+  # ==========================
+  - type: web
     name: rag-knowledge-backend
     env: python
     region: oregon
     plan: starter
-    root: backend
+
+    rootDir: backend
     branch: main
 
     buildCommand: pip install -r requirements.txt
@@ -12,26 +16,11 @@ services:
 
     envVars:
       - key: GROQ_API_KEY
-        value: ""
+        sync: false
+
       - key: FRONTEND_URLS
-        value: "https://your-frontend.onrender.com"
+        value: https://your-frontend.onrender.com
 
-    autoDeploy: true
-
-  - type: static_site
-    name: rag-knowledge-frontend
-    region: oregon
-    plan: starter
-    root: frontend
-    branch: main
-
-    buildCommand: npm install && npm run build
-    publishPath: dist
-
-    envVars:
-      - key: VITE_API_URL
-        value: "https://your-backend.onrender.com"
-    envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
 
@@ -39,4 +28,25 @@ services:
         value: "1"
 
     autoDeploy: true
-    
+
+
+  # ==========================
+  # Frontend
+  # ==========================
+  - type: static
+    name: rag-knowledge-frontend
+    env: static
+    region: oregon
+    plan: starter
+
+    rootDir: frontend
+    branch: main
+
+    buildCommand: npm install && npm run build
+    publishPath: dist
+
+    envVars:
+      - key: VITE_API_URL
+        value: https://your-backend.onrender.com
+
+    autoDeploy: true
